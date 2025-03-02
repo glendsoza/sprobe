@@ -2,9 +2,10 @@ package prober
 
 import (
 	"fmt"
-	"github.com/glendsoza/sprobe/spec"
 	"sync"
 	"time"
+
+	"github.com/glendsoza/sprobe/spec"
 
 	"github.com/glendsoza/sprobe/health"
 	"github.com/glendsoza/sprobe/status"
@@ -85,11 +86,13 @@ func (pm *ProberManager) startProbe(spec *spec.LivenessProbe, stopChan chan int)
 					if failureCount >= *spec.FailureThreshold {
 						pm.updateServiceHealth(spec.ServiceName, health.UnHealthy, probeResult)
 						ticker.Stop()
-						output, err := pm.unitsManager.Restart(spec.ServiceName)
-						log.Info().Str("service_name", spec.ServiceName).
-							Str("output", output).
-							Err(err).
-							Msg("restarted")
+						if *spec.AutoRestart {
+							output, err := pm.unitsManager.Restart(spec.ServiceName)
+							log.Info().Str("service_name", spec.ServiceName).
+								Str("output", output).
+								Err(err).
+								Msg("restarted")
+						}
 						break OUTER
 					}
 				} else {
@@ -97,9 +100,7 @@ func (pm *ProberManager) startProbe(spec *spec.LivenessProbe, stopChan chan int)
 					successCount += 1
 					if successCount >= *spec.SuccessThreshold {
 						successCount = 0
-						if *spec.AutoRestart {
-							pm.updateServiceHealth(spec.ServiceName, health.Healthy, probeResult)
-						}
+						pm.updateServiceHealth(spec.ServiceName, health.Healthy, probeResult)
 					}
 				}
 			case <-stopChan:
