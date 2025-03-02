@@ -56,7 +56,7 @@ Create a YAML configuration file with the following structure:
   autoRestart: false
 ```
 
-**`Note: To automatically restart service, user running the program needs access to restart the service i.e user can run systemd restart <service_name> command"`**
+**`Note: To automatically restart service, user running the program needs access to restart the service i.e user can run systemd restart <service_name> command`**
 
 ### Configuration Parameters
 
